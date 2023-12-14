@@ -23,7 +23,7 @@ class ERM(pl.LightningModule):
     def forward(self, x, y):
         batch_size = len(x)
         x = self.cnn(x).view(batch_size, -1)
-        y_pred = self.fc(x).view(-1)
+        y_pred = self.fc(x)
         return y_pred, y
 
     def training_step(self, batch, batch_idx):

@@ -22,12 +22,12 @@ def make_data(batch_size, n_workers):
     ])
     
     def apply_transform_train(examples):
-        examples['pixel_values'] = [transform_train(image) for image in examples['image']]
+        examples['pixel_values'] = [transform_train(image.convert('RGB')) for image in examples['image']]
         del examples['image']
         return examples
     
     def apply_transform_eval(examples):
-        examples['pixel_values'] = [transform_eval(image) for image in examples['image']]
+        examples['pixel_values'] = [transform_eval(image.convert('RGB')) for image in examples['image']]
         del examples['image']
         return examples
 
@@ -36,7 +36,7 @@ def make_data(batch_size, n_workers):
         y = []
         for example in examples:
             x.append(example['pixel_values'])
-            y.append(example['labels'])
+            y.append(example['label'])
         x = torch.stack(x)
         y = torch.tensor(y)
         return x, y
