@@ -20,7 +20,7 @@ class ERM(pl.LightningModule):
         self.train_acc = Accuracy('multiclass', num_classes=N_CLASSES)
         self.val_acc = Accuracy('multiclass', num_classes=N_CLASSES)
 
-    def forward(self, x, y, e):
+    def forward(self, x, y):
         batch_size = len(x)
         x = self.cnn(x).view(batch_size, -1)
         y_pred = self.fc(x).view(-1)

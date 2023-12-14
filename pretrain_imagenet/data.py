@@ -1,3 +1,4 @@
+import torch
 import torchvision.transforms as transforms
 from datasets import load_dataset
 from torch.utils.data import DataLoader
@@ -22,11 +23,23 @@ def make_data(batch_size, n_workers):
     
     def apply_transform_train(examples):
         examples['pixel_values'] = [transform_train(image) for image in examples['image']]
+        del examples['image']
         return examples
     
     def apply_transform_eval(examples):
         examples['pixel_values'] = [transform_eval(image) for image in examples['image']]
+        del examples['image']
         return examples
+
+    def collate(examples):
+        x = []
+        y = []
+        for example in examples:
+            x.append(example['pixel_values'])
+            y.append(example['labels'])
+        x = torch.stack(x)
+        y = torch.tensor(y)
+        return x, y
 
     dataset_train = load_dataset('imagenet-1k', split='train')
     dataset_val = load_dataset('imagenet-1k', split='validation')
@@ -34,6 +47,8 @@ def make_data(batch_size, n_workers):
     dataset_val.set_format('torch')
     dataset_train.set_transform(apply_transform_train)
     dataset_val.set_transform(apply_transform_eval)
-    data_train = DataLoader(dataset_train, shuffle=True, pin_memory=True, batch_size=batch_size, num_workers=n_workers)
-    data_val = DataLoader(dataset_val, pin_memory=True, batch_size=batch_size, num_workers=n_workers)
+    data_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True, num_workers=n_workers, collate_fn=collate,
+        pin_memory=True, persistent_workers=True)
+    data_val = DataLoader(dataset_val, batch_size=batch_size, num_workers=n_workers, collate_fn=collate, pin_memory=True,
+        persistent_workers=True)
     return data_train, data_val
