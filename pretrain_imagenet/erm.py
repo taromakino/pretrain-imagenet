@@ -49,4 +49,4 @@ class ERM(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = SGD(self.parameters(), lr=self.lr, momentum=self.momentum, weight_decay=self.weight_decay)
         scheduler = StepLR(optimizer, step_size=30, gamma=0.1)
-        return optimizer, scheduler
+        return {'optimizer': optimizer, 'lr_scheduler': scheduler}
