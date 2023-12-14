@@ -5,20 +5,18 @@ from torch.utils.data import DataLoader
 
 
 def make_data(batch_size, n_workers):
+    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     transform_train = transforms.Compose([
-        transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
+        transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(),
-        transforms.ColorJitter(0.3, 0.3, 0.3, 0.3),
-        transforms.RandomGrayscale(),
         transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        normalize
     ])
     transform_eval = transforms.Compose([
-        transforms.Resize((224,224)),
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        normalize
     ])
     
     def apply_transform_train(examples):
@@ -48,7 +46,6 @@ def make_data(batch_size, n_workers):
     dataset_train.set_transform(apply_transform_train)
     dataset_val.set_transform(apply_transform_eval)
     data_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True, num_workers=n_workers, collate_fn=collate,
-        pin_memory=True, persistent_workers=True)
-    data_val = DataLoader(dataset_val, batch_size=batch_size, num_workers=n_workers, collate_fn=collate, pin_memory=True,
-        persistent_workers=True)
+        pin_memory=True)
+    data_val = DataLoader(dataset_val, batch_size=batch_size, num_workers=n_workers, collate_fn=collate, pin_memory=True)
     return data_train, data_val
